@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->string('commenter_name')->nullable(); // Add a new column for the commenter’s name
+        Schema::create('ratings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('book_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->integer('rating');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->dropColumn('commenter_name'); // Drop the column if rolling back
-        });
+        Schema::dropIfExists('ratings');
     }
 };

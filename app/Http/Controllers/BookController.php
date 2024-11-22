@@ -10,70 +10,70 @@ use App\Factories\BookFactoryInterface;
 class BookController extends Controller
 {
     
-    // protected $bookFactory;
+    protected $bookFactory;
 
-    // public function __construct(BookFactoryInterface $bookFactory)
+    public function __construct(BookFactoryInterface $bookFactory)
+    {
+        $this->bookFactory = $bookFactory;
+    }
+    // public function create()
     // {
-    //     $this->bookFactory = $bookFactory;
+    //     return view('books.create');
     // }
-    public function create()
-    {
-        return view('books.create');
-    }
 
-    // Store the new book in the database
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255'
-        ]);
-
-        Book::create([
-            'title' => $request->title,
-            'author' => $request->author
-        ]);
-
-        return redirect()->route('books.index')->with('success', 'Book added successfully!');
-    }
-
+    // // Store the new book in the database
     // public function store(Request $request)
     // {
-    //     $book = $this->bookFactory->createBook($request->title, $request->author);
-    //     $book->save();
+    //     $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'author' => 'required|string|max:255'
+    //     ]);
 
-    //     return redirect()->route('books.index');
+    //     Book::create([
+    //         'title' => $request->title,
+    //         'author' => $request->author
+    //     ]);
+
+    //     return redirect()->route('books.index')->with('success', 'Book added successfully!');
     // }
-    // public function index(Request $request)
-    // {
-    //     $query = Book::query();
 
-    //     if ($request->has('search')) {
-    //         $query->where('title', 'like', '%' . $request->search . '%')
-    //               ->orWhere('author', 'like', '%' . $request->search . '%');
-    //     }
+    public function store(Request $request)
+    {
+        $book = $this->bookFactory->createBook($request->title, $request->author);
+        $book->save();
 
-    //     $books = $query->paginate(10);
-    //     return view('books.index', compact('books'));
-    // }
-    public function index(Request $request)
-{
-    $search = $request->get('search');
-
-    $books = Book::with('ratings') // Eager load ratings relationship
-        ->when($search, function($query) use ($search) {
-            $query->where('title', 'like', '%' . $search . '%')
-                ->orWhere('author', 'like', '%' . $search . '%');
-        })
-        ->paginate(10); // Paginate the result with 10 books per page
-
-    // Calculate the average rating for each book
-    foreach ($books as $book) {
-        $book->average_rating = $book->ratings->avg('rating');
+        return redirect()->route('books.index');
     }
+    public function index(Request $request)
+    {
+        $query = Book::query();
 
-    return view('books.index', compact('books'));
-}
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('author', 'like', '%' . $request->search . '%');
+        }
+
+        $books = $query->paginate(10);
+        return view('books.index', compact('books'));
+    }
+//     public function index(Request $request)
+// {
+//     $search = $request->get('search');
+
+//     $books = Book::with('ratings') // Eager load ratings relationship
+//         ->when($search, function($query) use ($search) {
+//             $query->where('title', 'like', '%' . $search . '%')
+//                 ->orWhere('author', 'like', '%' . $search . '%');
+//         })
+//         ->paginate(10); // Paginate the result with 10 books per page
+
+//     // Calculate the average rating for each book
+//     foreach ($books as $book) {
+//         $book->average_rating = $book->ratings->avg('rating');
+//     }
+
+//     return view('books.index', compact('books'));
+// }
     
     public function show(Book $book)
     {
